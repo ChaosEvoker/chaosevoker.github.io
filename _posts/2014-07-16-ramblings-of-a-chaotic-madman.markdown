@@ -3,6 +3,10 @@ layout: post
 title:  "Ramblings of a Chaotic Madman"
 date:   2014-07-16 15:10:49
 categories: update personal
+image:
+  feature: abstract-10.jpg
+  credit: dargadgetz
+  creditlink: http://www.dargadgetz.com/ios-7-abstract-wallpaper-pack-for-iphone-5-and-ipod-touch-retina/
 ---
 
 Hello to all of you who stumbled here by mistake. This is the place where I talk about technology and stuff.

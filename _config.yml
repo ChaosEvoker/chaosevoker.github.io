@@ -1,3 +1,27 @@
-name: Robot Secret Internet
-markdown: redcarpet
-pygments: true
+title:            Secret Robot Internet
+description:      The Chaotic Ramblings of a Madman.
+disqus_shortname: shortname
+# Your site's domain goes here. When working locally use localhost server leave blank
+# PS. If you set this wrong stylesheets and scripts won't load and most links will break.
+# PPS. If you leave it blank for local testing home links won't work, they'll be fine for live domains though.
+url:              http://localhost:4000
+
+# Owner/author information
+owner:
+  name:           Phillip Sipe
+  avatar:         avatar.jpg
+  bio:            "A Javascript Web Developer who enjoys being a huge nerd."
+  email:          chaosevoker@gmail.com
+  # Social networking links used in footer. Update and remove as you like.
+  twitter:        ChaosEvoker
+  facebook:       ChaosEvoker
+  github:         ChaosEvoker
+
+# http://en.wikipedia.org/wiki/List_of_tz_database_time_zones
+timezone:    America/Chicago
+future:      true
+pygments:    true
+markdown:    kramdown
+
+# Amount of posts to show on home page
+paginate: 5
