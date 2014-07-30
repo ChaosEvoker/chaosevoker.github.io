@@ -9,7 +9,7 @@ image:
   creditlink: http://www.dargadgetz.com/ios-7-abstract-wallpaper-pack-for-iphone-5-and-ipod-touch-retina/
 ---
 
-PDF Generation in Node - Part 1: Directly Drawing the PDF
+PDF Generation in Node - Part 1: Directly Drawing the PD
 
 I've recently been neck-deep in refactoring a project. I recently got to the automated report generation code in the project, and it made me all nostalgic. That's the feeling where you need to suddenly run to the bathroom right?
 
@@ -26,11 +26,13 @@ With that, let's get to the categories!
 For the examples in this section I'll be using [PDFKit](http://pdfkit.org/).
 
 Drawing the PDF is by far the most powerful solution. However, with great power comes great amounts of code:
+{% highlight js %}
     var PDFDocument = require('pdfkit');
     var document = new PDFDocument;
     document.font('Times-Roman')
         .fontSize(20)
         .text('Hello World!', 100, 100);
+{% endhighlight %}
 
 Now obviously, this is not a "great amount" of code. Heck, I sort of made it seem larger with all those extra new lines and indentations!
 
