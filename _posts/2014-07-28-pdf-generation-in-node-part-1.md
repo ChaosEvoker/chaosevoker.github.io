@@ -14,10 +14,12 @@ PDF Generation in Node - Part 1: Directly Drawing the PDF
 I've recently been neck-deep in refactoring a project. I recently got to the automated report generation code in the project, and it made me all nostalgic. That's the feeling where you need to suddenly run to the bathroom right?
 
 I've tried quite a variety of strategies in creating PDF reports on a Node server automatically. Each has a set of strengths and weaknesses, and there isn't a single perfect solution. I've broken down the types of solutions into 3 distinct categories. I will be using a particular technology for each of the examples, but you should know that each category has a variety of technologies/libraries/etc. within it. There are subtleties between each of them, but for now I am just going to go over the larger categories and the major differences between them. Because everyone likes it when stuff is broken down into numbers, I'll also be rating the categories on a scale of 1 to 5 on the following fields:
-+ **Power** - The level of control you have over what the resulting PDF looks like
-+ **Efficiency** - How many resources the strategy consumes
-+ **Ease of Use** - How easy the solution is to implement
-+ **Flexibility** - How easy it is to alter the appearance of the PDF (for example due to a marketing redesign)
+<ol>
+    <li><strong>Power</strong> - The level of control you have over what the resulting PDF looks like</li>
+    <li><strong>Efficiency</strong> - How many resources the strategy consumes</li>
+    <li><strong>Ease of Use</strong> - How easy the solution is to implement</li>
+    <li><strong>Flexibility</strong> - How easy it is to alter the appearance of the PDF (for example due to a marketing redesign)</li>
+</ol>
 
 With that, let's get to the categories!
 
@@ -57,10 +59,12 @@ Now, this overview has been pretty negative so far. I won't lie and say that thi
 The other benefit to this solution that will become more apparent when we loook at the next solution, is resource consumption. This is fast and disk efficient, and you are unlikely to run into any size barriers using this method.
 
 **Final Rating**
-+ *Power* - 5
-+ *Efficiency* - 5
-+ *Ease of Use* - 2
-+ *Flexibility* - 1
+<ul>
+    <li><strong>Power</strong> - 5</li>
+    <li><strong>Efficiency</strong> - 5</li>
+    <li><strong>Ease of Use</strong> - 2</li>
+    <li><strong>Flexibility</strong> - 1</li>
+</ul>
 
 Ultimately, drawing the PDF directly is a solution of extremes. If you need large amounts of precise control over the document's appearance and you need it to be efficiently sized, then directly drawing it will serve you well. However, it will take a much greater effort to develop and change the PDF (relative to other solutions).
 
