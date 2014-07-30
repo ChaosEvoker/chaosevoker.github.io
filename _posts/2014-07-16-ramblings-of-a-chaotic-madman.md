@@ -2,7 +2,7 @@
 layout: post
 title:  "Ramblings of a Chaotic Madman"
 date:   2014-07-16 15:10:49
-categories: update personal
+categories: update
 image:
   feature: abstract-10.jpg
   credit: dargadgetz

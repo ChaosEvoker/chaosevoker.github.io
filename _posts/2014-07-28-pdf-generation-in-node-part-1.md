@@ -2,7 +2,7 @@
 layout: post
 title:  "PDF Generation in Node - Part 1"
 date:   2014-07-16 15:10:49
-categories: node js programming technology
+categories: programming
 image:
   feature: abstract-10.jpg
   credit: dargadgetz
