@@ -25,11 +25,11 @@ For the examples in this section I'll be using [PDFKit](http://pdfkit.org/).
 
 Drawing the PDF is by far the most powerful solution. However, with great power comes great amounts of code:
 ```js
-var PDFDocument = require('pdfkit');
-var document = new PDFDocument;
-document.font('Times-Roman')
-    .fontSize(20)
-    .text('Hello World!', 100, 100);
+    var PDFDocument = require('pdfkit');
+    var document = new PDFDocument;
+    document.font('Times-Roman')
+        .fontSize(20)
+        .text('Hello World!', 100, 100);
 ```
 
 Now obviously, this is not a "great amount" of code. Heck, I sort of made it seem larger with all those extra new lines and indentations!
