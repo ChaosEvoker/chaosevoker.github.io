@@ -2,36 +2,110 @@
 <feed xmlns="http://www.w3.org/2005/Atom" xml:lang="en">
 <title type="text">Secret Robot Internet</title>
 <generator uri="https://github.com/mojombo/jekyll">Jekyll</generator>
-<link rel="self" type="application/atom+xml" href="http://localhost:4000/feed.xml" />
-<link rel="alternate" type="text/html" href="http://localhost:4000" />
-<updated>2014-07-16T16:12:40-05:00</updated>
-<id>http://localhost:4000/</id>
+<link rel="self" type="application/atom+xml" href="http://chaosevoker.github.io/feed.xml" />
+<link rel="alternate" type="text/html" href="http://chaosevoker.github.io" />
+<updated>2014-07-30T16:23:03-05:00</updated>
+<id>http://chaosevoker.github.io/</id>
 <author>
   <name>Phillip Sipe</name>
-  <uri>http://localhost:4000/</uri>
+  <uri>http://chaosevoker.github.io/</uri>
   <email>chaosevoker@gmail.com</email>
 </author>
 
 
 <entry>
   <title type="html"><![CDATA[Ramblings of a Chaotic Madman]]></title>
- <link rel="alternate" type="text/html" href="http://localhost:4000/update/personal/2014/07/16/ramblings-of-a-chaotic-madman.html" />
-  <id>http://localhost:4000/update/personal/2014/07/16/ramblings-of-a-chaotic-madman</id>
+ <link rel="alternate" type="text/html" href="http://chaosevoker.github.io/update/personal/2014/07/16/ramblings-of-a-chaotic-madman.html" />
+  <id>http://chaosevoker.github.io/update/personal/2014/07/16/ramblings-of-a-chaotic-madman</id>
   <published>2014-07-16T10:10:49-05:00</published>
   <updated>2014-07-16T10:10:49-05:00</updated>
   <author>
     <name>Phillip Sipe</name>
-    <uri>http://localhost:4000</uri>
+    <uri>http://chaosevoker.github.io</uri>
     <email>chaosevoker@gmail.com</email>
   </author>
-  <content type="html">&lt;p&gt;Hello to all of you who stumbled here by mistake. This is the place where I talk about technology and stuff.
+  <content type="html">&lt;p&gt;Ramblings of a Chaotic Madman&lt;/p&gt;
+
+&lt;p&gt;Hello to all of you who stumbled here by mistake. This is the place where I talk about technology and stuff.
 This post doesn’t have any of that content, so if you are looking for that then too bad!
 This was mostly just a test post while I was getting the blog going, so if you are looking for great insights
 into the world of technology and javascript then I suggest you go to &lt;a href=&quot;http://www.google.com&quot;&gt;http://www.google.com&lt;/a&gt; and type your desired topic
 into the search bar and press the Enter or Return key. However, if you are looking for the thoughts and opinions of some random
 developer who figured out how to put words on the internet, then you might try just clicking on one of my other posts.&lt;/p&gt;
 
-  &lt;p&gt;&lt;a href=&quot;http://localhost:4000/update/personal/2014/07/16/ramblings-of-a-chaotic-madman.html&quot;&gt;Ramblings of a Chaotic Madman&lt;/a&gt; was originally published by Phillip Sipe at &lt;a href=&quot;http://localhost:4000&quot;&gt;Secret Robot Internet&lt;/a&gt; on July 16, 2014.&lt;/p&gt;</content>
+  &lt;p&gt;&lt;a href=&quot;http://chaosevoker.github.io/update/personal/2014/07/16/ramblings-of-a-chaotic-madman.html&quot;&gt;Ramblings of a Chaotic Madman&lt;/a&gt; was originally published by Phillip Sipe at &lt;a href=&quot;http://chaosevoker.github.io&quot;&gt;Secret Robot Internet&lt;/a&gt; on July 16, 2014.&lt;/p&gt;</content>
+</entry>
+
+
+<entry>
+  <title type="html"><![CDATA[PDF Generation in Node - Part 1]]></title>
+ <link rel="alternate" type="text/html" href="http://chaosevoker.github.io/node/js/programming/technology/2014/07/16/pdf-generation-in-node-part-1.html" />
+  <id>http://chaosevoker.github.io/node/js/programming/technology/2014/07/16/pdf-generation-in-node-part-1</id>
+  <published>2014-07-16T10:10:49-05:00</published>
+  <updated>2014-07-16T10:10:49-05:00</updated>
+  <author>
+    <name>Phillip Sipe</name>
+    <uri>http://chaosevoker.github.io</uri>
+    <email>chaosevoker@gmail.com</email>
+  </author>
+  <content type="html">&lt;p&gt;PDF Generation in Node - Part 1: Directly Drawing the PDF&lt;/p&gt;
+
+&lt;p&gt;I’ve recently been neck-deep in refactoring a project. I recently got to the automated report generation code in the project, and it made me all nostalgic. That’s the feeling where you need to suddenly run to the bathroom right?&lt;/p&gt;
+
+&lt;p&gt;I’ve tried quite a variety of strategies in creating PDF reports on a Node server automatically. Each has a set of strengths and weaknesses, and there isn’t a single perfect solution. I’ve broken down the types of solutions into 3 distinct categories. I will be using a particular technology for each of the examples, but you should know that each category has a variety of technologies/libraries/etc. within it. There are subtleties between each of them, but for now I am just going to go over the larger categories and the major differences between them. Because everyone likes it when stuff is broken down into numbers, I’ll also be rating the categories on a scale of 1 to 5 on the following fields:
++ &lt;strong&gt;Power&lt;/strong&gt; - The level of control you have over what the resulting PDF looks like
++ &lt;strong&gt;Efficiency&lt;/strong&gt; - How many resources the strategy consumes
++ &lt;strong&gt;Ease of Use&lt;/strong&gt; - How easy the solution is to implement
++ &lt;strong&gt;Flexibility&lt;/strong&gt; - How easy it is to alter the appearance of the PDF (for example due to a marketing redesign)&lt;/p&gt;
+
+&lt;p&gt;With that, let’s get to the categories!&lt;/p&gt;
+
+&lt;h2 id=&quot;draw-the-pdf-directly&quot;&gt;Draw the PDF Directly&lt;/h2&gt;
+
+&lt;p&gt;For the examples in this section I’ll be using &lt;a href=&quot;http://pdfkit.org/&quot;&gt;PDFKit&lt;/a&gt;.&lt;/p&gt;
+
+&lt;p&gt;Drawing the PDF is by far the most powerful solution. However, with great power comes great amounts of code:&lt;/p&gt;
+
+&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;js&quot;&gt;    &lt;span class=&quot;kd&quot;&gt;var&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;PDFDocument&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;require&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s1&quot;&gt;&amp;#39;pdfkit&amp;#39;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;);&lt;/span&gt;
+    &lt;span class=&quot;kd&quot;&gt;var&lt;/span&gt; &lt;span class=&quot;nb&quot;&gt;document&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;new&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;PDFDocument&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+    &lt;span class=&quot;nb&quot;&gt;document&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;font&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s1&quot;&gt;&amp;#39;Times-Roman&amp;#39;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+        &lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;fontSize&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;20&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+        &lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;text&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s1&quot;&gt;&amp;#39;Hello World!&amp;#39;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;100&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;100&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;);&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;Now obviously, this is not a “great amount” of code. Heck, I sort of made it seem larger with all those extra new lines and indentations!&lt;/p&gt;
+
+&lt;p&gt;If you program with a library like this for any significant amount of time, you’ll likely end up writing in a similar way. PDFKit’s API is very chainable, which significantly cuts down on lines of code, but does result in some very long lines. Styling your code like this will really help future readability.&lt;/p&gt;
+
+&lt;p&gt;Let’s add a bit of complexity:&lt;/p&gt;
+
+&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;js&quot;&gt;&lt;span class=&quot;nb&quot;&gt;document&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;rect&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;100&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;20&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;100&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;100&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+    &lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;fill&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s1&quot;&gt;&amp;#39;gray&amp;#39;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;);&lt;/span&gt;
+&lt;span class=&quot;nb&quot;&gt;document&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;font&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s1&quot;&gt;&amp;#39;Times-Roman&amp;#39;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+    &lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;fontSize&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;12&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+    &lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;fillColor&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s1&quot;&gt;&amp;#39;white&amp;#39;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+    &lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;text&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s1&quot;&gt;&amp;#39;White text on a gray background!&amp;#39;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;110&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;60&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;);&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;This added complexity is making another potential problem with direct drawing apparent. There are a lot of magic numbers. It can be very hard to keep all of your hardcoded numbers organized. It is possible to keep everything together without using magic numbers, but it is a time consuming development effort.&lt;/p&gt;
+
+&lt;p&gt;The real drawback of this solution, however, is the amount of effort it takes to change the document’s appearance. In my case, marketing came back with a design once that they wanted to try for a report we were generating. It was so different, we were forced to tell them that we would be (more or less) starting over! Given that the visual design of things often changes at a rapid pace, this is obviously a large drawback.&lt;/p&gt;
+
+&lt;p&gt;Now, this overview has been pretty negative so far. I won’t lie and say that this is my prefered solution. It isn’t. But, this solution is extremely powerful. If you want to draw some crazy mathematically calculated fractal and put it in a PDF, you can do that without jumping through hoops. This solution trades conviencne for power, and it has power in spades.&lt;/p&gt;
+
+&lt;p&gt;The other benefit to this solution that will become more apparent when we loook at the next solution, is resource consumption. This is fast and disk efficient, and you are unlikely to run into any size barriers using this method.&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;Final Rating&lt;/strong&gt;
++ &lt;em&gt;Power&lt;/em&gt; - 5
++ &lt;em&gt;Efficiency&lt;/em&gt; - 5
++ &lt;em&gt;Ease of Use&lt;/em&gt; - 2
++ &lt;em&gt;Flexibility&lt;/em&gt; - 1&lt;/p&gt;
+
+&lt;p&gt;Ultimately, drawing the PDF directly is a solution of extremes. If you need large amounts of precise control over the document’s appearance and you need it to be efficiently sized, then directly drawing it will serve you well. However, it will take a much greater effort to develop and change the PDF (relative to other solutions).&lt;/p&gt;
+
+&lt;p&gt;So that took up way more text than I expected when I started writing this post. So, I’m going to break it up into several posts. Next time we will cover the world of PDF generation through headless browsers!&lt;/p&gt;
+
+  &lt;p&gt;&lt;a href=&quot;http://chaosevoker.github.io/node/js/programming/technology/2014/07/16/pdf-generation-in-node-part-1.html&quot;&gt;PDF Generation in Node - Part 1&lt;/a&gt; was originally published by Phillip Sipe at &lt;a href=&quot;http://chaosevoker.github.io&quot;&gt;Secret Robot Internet&lt;/a&gt; on July 16, 2014.&lt;/p&gt;</content>
 </entry>
 
 </feed>
