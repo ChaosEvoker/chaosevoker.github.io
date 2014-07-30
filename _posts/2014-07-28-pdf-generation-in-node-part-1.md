@@ -9,7 +9,7 @@ image:
   creditlink: http://www.dargadgetz.com/ios-7-abstract-wallpaper-pack-for-iphone-5-and-ipod-touch-retina/
 ---
 
-PDF Generation in Node - Part 1: Directly Drawing the PD
+PDF Generation in Node - Part 1: Directly Drawing the PDF
 
 I've recently been neck-deep in refactoring a project. I recently got to the automated report generation code in the project, and it made me all nostalgic. That's the feeling where you need to suddenly run to the bathroom right?
 
@@ -39,14 +39,15 @@ Now obviously, this is not a "great amount" of code. Heck, I sort of made it see
 If you program with a library like this for any significant amount of time, you'll likely end up writing in a similar way. PDFKit's API is very chainable, which significantly cuts down on lines of code, but does result in some very long lines. Styling your code like this will really help future readability.
 
 Let's add a bit of complexity:
-```js
+{% highlight js %}
 document.rect(100, 20, 100, 100)
     .fill('gray');
 document.font('Times-Roman')
     .fontSize(12)
     .fillColor('white')
     .text('White text on a gray background!', 110, 60);
-```
+{% endhighlight %}
+
 This added complexity is making another potential problem with direct drawing apparent. There are a lot of magic numbers. It can be very hard to keep all of your hardcoded numbers organized. It is possible to keep everything together without using magic numbers, but it is a time consuming development effort.
 
 The real drawback of this solution, however, is the amount of effort it takes to change the document's appearance. In my case, marketing came back with a design once that they wanted to try for a report we were generating. It was so different, we were forced to tell them that we would be (more or less) starting over! Given that the visual design of things often changes at a rapid pace, this is obviously a large drawback.

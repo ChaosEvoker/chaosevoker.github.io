@@ -9,6 +9,8 @@ image:
   creditlink: http://www.dargadgetz.com/ios-7-abstract-wallpaper-pack-for-iphone-5-and-ipod-touch-retina/
 ---
 
+Ramblings of a Chaotic Madman
+
 Hello to all of you who stumbled here by mistake. This is the place where I talk about technology and stuff.
 This post doesn't have any of that content, so if you are looking for that then too bad!
 This was mostly just a test post while I was getting the blog going, so if you are looking for great insights
