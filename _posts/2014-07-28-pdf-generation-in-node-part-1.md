@@ -9,6 +9,8 @@ image:
   creditlink: http://www.dargadgetz.com/ios-7-abstract-wallpaper-pack-for-iphone-5-and-ipod-touch-retina/
 ---
 
+PDF Generation in Node - Part 1: Directly Drawing the PDF
+
 I've recently been neck-deep in refactoring a project. I recently got to the automated report generation code in the project, and it made me all nostalgic. That's the feeling where you need to suddenly run to the bathroom right?
 
 I've tried quite a variety of strategies in creating PDF reports on a Node server automatically. Each has a set of strengths and weaknesses, and there isn't a single perfect solution. I've broken down the types of solutions into 3 distinct categories. I will be using a particular technology for each of the examples, but you should know that each category has a variety of technologies/libraries/etc. within it. There are subtleties between each of them, but for now I am just going to go over the larger categories and the major differences between them. Because everyone likes it when stuff is broken down into numbers, I'll also be rating the categories on a scale of 1 to 5 on the following fields:
@@ -24,13 +26,11 @@ With that, let's get to the categories!
 For the examples in this section I'll be using [PDFKit](http://pdfkit.org/).
 
 Drawing the PDF is by far the most powerful solution. However, with great power comes great amounts of code:
-```js
     var PDFDocument = require('pdfkit');
     var document = new PDFDocument;
     document.font('Times-Roman')
         .fontSize(20)
         .text('Hello World!', 100, 100);
-```
 
 Now obviously, this is not a "great amount" of code. Heck, I sort of made it seem larger with all those extra new lines and indentations!
 
