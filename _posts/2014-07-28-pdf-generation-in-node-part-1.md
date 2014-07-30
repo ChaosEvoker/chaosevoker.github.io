@@ -54,9 +54,9 @@ This added complexity is making another potential problem with direct drawing ap
 
 The real drawback of this solution, however, is the amount of effort it takes to change the document's appearance. In my case, marketing came back with a design once that they wanted to try for a report we were generating. It was so different, we were forced to tell them that we would be (more or less) starting over! Given that the visual design of things often changes at a rapid pace, this is obviously a large drawback.
 
-Now, this overview has been pretty negative so far. I won't lie and say that this is my prefered solution. It isn't. But, this solution is extremely powerful. If you want to draw some crazy mathematically calculated fractal and put it in a PDF, you can do that without jumping through hoops. This solution trades conviencne for power, and it has power in spades.
+Now, this overview has been pretty negative so far. I won't lie and say that this is my preferred solution. It isn't. But, this solution is extremely powerful. If you want to draw some crazy mathematically calculated fractal and put it in a PDF, you can do that without jumping through hoops. This solution trades convenience for power, and it has power in spades.
 
-The other benefit to this solution that will become more apparent when we loook at the next solution, is resource consumption. This is fast and disk efficient, and you are unlikely to run into any size barriers using this method.
+The other benefit to this solution that will become more apparent when we look at the next solution, is resource consumption. This is fast and disk efficient, and you are unlikely to run into any size barriers using this method.
 
 **Final Rating**
 <ul>
