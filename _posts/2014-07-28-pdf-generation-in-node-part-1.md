@@ -2,6 +2,7 @@
 layout: post
 title:  "PDF Generation in Node - Part 1"
 date:   2014-07-16 15:10:49
+comments: true
 categories: programming
 image:
   feature: abstract-10.jpg

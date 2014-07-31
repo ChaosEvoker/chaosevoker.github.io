@@ -4,7 +4,7 @@
 <generator uri="https://github.com/mojombo/jekyll">Jekyll</generator>
 <link rel="self" type="application/atom+xml" href="http://chaosevoker.github.io/feed.xml" />
 <link rel="alternate" type="text/html" href="http://chaosevoker.github.io" />
-<updated>2014-07-30T16:27:58-05:00</updated>
+<updated>2014-07-31T16:46:09-05:00</updated>
 <id>http://chaosevoker.github.io/</id>
 <author>
   <name>Phillip Sipe</name>
@@ -15,8 +15,8 @@
 
 <entry>
   <title type="html"><![CDATA[Ramblings of a Chaotic Madman]]></title>
- <link rel="alternate" type="text/html" href="http://chaosevoker.github.io/update/personal/2014/07/16/ramblings-of-a-chaotic-madman.html" />
-  <id>http://chaosevoker.github.io/update/personal/2014/07/16/ramblings-of-a-chaotic-madman</id>
+ <link rel="alternate" type="text/html" href="http://chaosevoker.github.io/update/2014/07/16/ramblings-of-a-chaotic-madman.html" />
+  <id>http://chaosevoker.github.io/update/2014/07/16/ramblings-of-a-chaotic-madman</id>
   <published>2014-07-16T10:10:49-05:00</published>
   <updated>2014-07-16T10:10:49-05:00</updated>
   <author>
@@ -33,14 +33,14 @@ into the world of technology and javascript then I suggest you go to &lt;a href=
 into the search bar and press the Enter or Return key. However, if you are looking for the thoughts and opinions of some random
 developer who figured out how to put words on the internet, then you might try just clicking on one of my other posts.&lt;/p&gt;
 
-  &lt;p&gt;&lt;a href=&quot;http://chaosevoker.github.io/update/personal/2014/07/16/ramblings-of-a-chaotic-madman.html&quot;&gt;Ramblings of a Chaotic Madman&lt;/a&gt; was originally published by Phillip Sipe at &lt;a href=&quot;http://chaosevoker.github.io&quot;&gt;Secret Robot Internet&lt;/a&gt; on July 16, 2014.&lt;/p&gt;</content>
+  &lt;p&gt;&lt;a href=&quot;http://chaosevoker.github.io/update/2014/07/16/ramblings-of-a-chaotic-madman.html&quot;&gt;Ramblings of a Chaotic Madman&lt;/a&gt; was originally published by Phillip Sipe at &lt;a href=&quot;http://chaosevoker.github.io&quot;&gt;Secret Robot Internet&lt;/a&gt; on July 16, 2014.&lt;/p&gt;</content>
 </entry>
 
 
 <entry>
   <title type="html"><![CDATA[PDF Generation in Node - Part 1]]></title>
- <link rel="alternate" type="text/html" href="http://chaosevoker.github.io/node/js/programming/technology/2014/07/16/pdf-generation-in-node-part-1.html" />
-  <id>http://chaosevoker.github.io/node/js/programming/technology/2014/07/16/pdf-generation-in-node-part-1</id>
+ <link rel="alternate" type="text/html" href="http://chaosevoker.github.io/programming/2014/07/16/pdf-generation-in-node-part-1.html" />
+  <id>http://chaosevoker.github.io/programming/2014/07/16/pdf-generation-in-node-part-1</id>
   <published>2014-07-16T10:10:49-05:00</published>
   <updated>2014-07-16T10:10:49-05:00</updated>
   <author>
@@ -50,7 +50,7 @@ developer who figured out how to put words on the internet, then you might try j
   </author>
   <content type="html">&lt;p&gt;PDF Generation in Node - Part 1: Directly Drawing the PDF&lt;/p&gt;
 
-&lt;p&gt;I’ve recently been neck-deep in refactoring a project. I recently got to the automated report generation code in the project, and it made me all nostalgic. That’s the feeling where you need to suddenly run to the bathroom right?&lt;/p&gt;
+&lt;p&gt;I’ve recently been neck-deep in refactoring a project. I just got to the automated report generation code in the project, and it made me all nostalgic. That’s the feeling where you need to suddenly run to the bathroom right?&lt;/p&gt;
 
 &lt;p&gt;I’ve tried quite a variety of strategies in creating PDF reports on a Node server automatically. Each has a set of strengths and weaknesses, and there isn’t a single perfect solution. I’ve broken down the types of solutions into 3 distinct categories. I will be using a particular technology for each of the examples, but you should know that each category has a variety of technologies/libraries/etc. within it. There are subtleties between each of them, but for now I am just going to go over the larger categories and the major differences between them. Because everyone likes it when stuff is broken down into numbers, I’ll also be rating the categories on a scale of 1 to 5 on the following fields:&lt;/p&gt;
 &lt;ol&gt;
@@ -93,9 +93,9 @@ developer who figured out how to put words on the internet, then you might try j
 
 &lt;p&gt;The real drawback of this solution, however, is the amount of effort it takes to change the document’s appearance. In my case, marketing came back with a design once that they wanted to try for a report we were generating. It was so different, we were forced to tell them that we would be (more or less) starting over! Given that the visual design of things often changes at a rapid pace, this is obviously a large drawback.&lt;/p&gt;
 
-&lt;p&gt;Now, this overview has been pretty negative so far. I won’t lie and say that this is my prefered solution. It isn’t. But, this solution is extremely powerful. If you want to draw some crazy mathematically calculated fractal and put it in a PDF, you can do that without jumping through hoops. This solution trades conviencne for power, and it has power in spades.&lt;/p&gt;
+&lt;p&gt;Now, this overview has been pretty negative so far. I won’t lie and say that this is my preferred solution. It isn’t. But, this solution is extremely powerful. If you want to draw some crazy mathematically calculated fractal and put it in a PDF, you can do that without jumping through hoops. This solution trades convenience for power, and it has power in spades.&lt;/p&gt;
 
-&lt;p&gt;The other benefit to this solution that will become more apparent when we loook at the next solution, is resource consumption. This is fast and disk efficient, and you are unlikely to run into any size barriers using this method.&lt;/p&gt;
+&lt;p&gt;The other benefit to this solution that will become more apparent when we look at the next solution, is resource consumption. This is fast and disk efficient, and you are unlikely to run into any size barriers using this method.&lt;/p&gt;
 
 &lt;p&gt;&lt;strong&gt;Final Rating&lt;/strong&gt;&lt;/p&gt;
 &lt;ul&gt;
@@ -109,7 +109,7 @@ developer who figured out how to put words on the internet, then you might try j
 
 &lt;p&gt;So that took up way more text than I expected when I started writing this post. So, I’m going to break it up into several posts. Next time we will cover the world of PDF generation through headless browsers!&lt;/p&gt;
 
-  &lt;p&gt;&lt;a href=&quot;http://chaosevoker.github.io/node/js/programming/technology/2014/07/16/pdf-generation-in-node-part-1.html&quot;&gt;PDF Generation in Node - Part 1&lt;/a&gt; was originally published by Phillip Sipe at &lt;a href=&quot;http://chaosevoker.github.io&quot;&gt;Secret Robot Internet&lt;/a&gt; on July 16, 2014.&lt;/p&gt;</content>
+  &lt;p&gt;&lt;a href=&quot;http://chaosevoker.github.io/programming/2014/07/16/pdf-generation-in-node-part-1.html&quot;&gt;PDF Generation in Node - Part 1&lt;/a&gt; was originally published by Phillip Sipe at &lt;a href=&quot;http://chaosevoker.github.io&quot;&gt;Secret Robot Internet&lt;/a&gt; on July 16, 2014.&lt;/p&gt;</content>
 </entry>
 
 </feed>
