@@ -70,3 +70,5 @@ The other benefit to this solution that will become more apparent when we look a
 Ultimately, drawing the PDF directly is a solution of extremes. If you need large amounts of precise control over the document's appearance and you need it to be efficiently sized, then directly drawing it will serve you well. However, it will take a much greater effort to develop and change the PDF (relative to other solutions).
 
 So that took up way more text than I expected when I started writing this post. So, I'm going to break it up into several posts. Next time we will cover the world of PDF generation through headless browsers!
+
+Next: [PDF Generation Part 2 - Using Headless Browsers](http://chaosevoker.github.io/programming/2014/07/16/pdf-generation-in-node-part-2.html)
