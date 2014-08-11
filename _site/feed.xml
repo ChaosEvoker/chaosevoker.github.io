@@ -4,13 +4,170 @@
 <generator uri="https://github.com/mojombo/jekyll">Jekyll</generator>
 <link rel="self" type="application/atom+xml" href="http://chaosevoker.github.io/feed.xml" />
 <link rel="alternate" type="text/html" href="http://chaosevoker.github.io" />
-<updated>2014-08-07T16:53:32-05:00</updated>
+<updated>2014-08-10T20:46:11-05:00</updated>
 <id>http://chaosevoker.github.io/</id>
 <author>
   <name>Phillip Sipe</name>
   <uri>http://chaosevoker.github.io/</uri>
   <email>chaosevoker@gmail.com</email>
 </author>
+
+
+<entry>
+  <title type="html"><![CDATA[PDF Generation in Node - Part 3]]></title>
+ <link rel="alternate" type="text/html" href="http://chaosevoker.github.io/programming/2014/08/10/pdf-generation-in-node-part-3.html" />
+  <id>http://chaosevoker.github.io/programming/2014/08/10/pdf-generation-in-node-part-3</id>
+  <published>2014-08-10T00:00:00-05:00</published>
+  <updated>2014-08-10T00:00:00-05:00</updated>
+  <author>
+    <name>Phillip Sipe</name>
+    <uri>http://chaosevoker.github.io</uri>
+    <email>chaosevoker@gmail.com</email>
+  </author>
+  <content type="html">&lt;p&gt;PDF Generation in Node - Part 3: Rendering the PDF with an HTML to PDF Converter&lt;/p&gt;
+
+&lt;p&gt;Here are the previous posts on the topic:&lt;/p&gt;
+
+&lt;p&gt;&lt;a href=&quot;http://chaosevoker.github.io/programming/2014/07/16/pdf-generation-in-node-part-1.html&quot;&gt;Part 1 - Drawing the PDF Directly&lt;/a&gt;.
+&lt;a href=&quot;http://chaosevoker.github.io/programming/2014/07/16/pdf-generation-in-node-part-2.html&quot;&gt;Part 2 - Using a Headless Browser&lt;/a&gt;.&lt;/p&gt;
+
+&lt;p&gt;As a reminder, here is how I will ultimately rate the solutions (on a scale of 1 to 5):&lt;/p&gt;
+&lt;ol&gt;
+    &lt;li&gt;&lt;strong&gt;Power&lt;/strong&gt; - The level of control you have over what the resulting PDF looks like&lt;/li&gt;
+    &lt;li&gt;&lt;strong&gt;Efficiency&lt;/strong&gt; - How many resources the strategy consumes&lt;/li&gt;
+    &lt;li&gt;&lt;strong&gt;Ease of Use&lt;/strong&gt; - How easy the solution is to implement&lt;/li&gt;
+    &lt;li&gt;&lt;strong&gt;Flexibility&lt;/strong&gt; - How easy it is to alter the appearance of the PDF (for example due to a marketing redesign)&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;p&gt;Everyone ready for some shameless self promotion? Great! Let’s get started…&lt;/p&gt;
+
+&lt;h2 id=&quot;using-a-html-to-pdf-converter&quot;&gt;Using a HTML to PDF Converter&lt;/h2&gt;
+
+&lt;p&gt;For the javascript examples in this discussion I’ll be using &lt;a href=&quot;https://github.com/ChaosEvoker/html-to-pdf&quot;&gt;html-to-pdf&lt;/a&gt;. html-to-pdf is a Node module which uses a Java HTML to PDF conversion library called &lt;a href=&quot;https://github.com/flyingsaucerproject/flyingsaucer&quot;&gt;Flyingsaucer&lt;/a&gt; in the background. Full disclosure: I wrote html-to-pdf (the Node module parts anyway - Flyingsaucer was written by other developers).
+There are also a couple of pieces of Java code showing the use of &lt;a href=&quot;https://github.com/flyingsaucerproject/flyingsaucer&quot;&gt;Flyingsaucer&lt;/a&gt; and &lt;a href=&quot;http://jtidy.sourceforge.net/&quot;&gt;JTidy&lt;/a&gt;.&lt;/p&gt;
+
+&lt;p&gt;So, I had struggled with the past couple of solutions for generating PDFs in Node. Drawing directly worked fine, but had a huge development and maintenance overhead. Headless browsers were much easier, but generated files that were far too large for my purposes. Eventually, through a great deal of Google patience, I stumbled on Flyingsaucer. Flyingsaucer is a Java library that reads XML and CSS transforms it into a PDF. Flyingsaucer has a few weaknesses though:&lt;/p&gt;
+&lt;ul&gt;
+    &lt;li&gt;It is designed as an XML to PDF converter, which means it needs to be fed strict XHTML.&lt;/li&gt;
+    &lt;li&gt;The CSS renderer is custom built and somewhat dated, meaning CSS has to conform to CSS2 standards.&lt;/li&gt;
+    &lt;li&gt;It&#39;s in Java so we have to do some shenanigans to get it working in Node.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;These were some hurdles, but I had some sweet Jade templates ready to go and wasn’t going to give up. So here’s a simple Java program using Flyingsaucer:&lt;/p&gt;
+
+&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;java&quot;&gt;&lt;span class=&quot;c1&quot;&gt;//Import a bunch of relevant Core Java things here (snipped for conciseness)&lt;/span&gt;
+&lt;span class=&quot;kn&quot;&gt;import&lt;/span&gt; &lt;span class=&quot;nn&quot;&gt;org.xhtmlrenderer.pdf.ITextRenderer&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;;&lt;/span&gt;
+
+&lt;span class=&quot;kd&quot;&gt;public&lt;/span&gt; &lt;span class=&quot;kd&quot;&gt;class&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;PDFRenderer&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
+    &lt;span class=&quot;kd&quot;&gt;public&lt;/span&gt; &lt;span class=&quot;kd&quot;&gt;static&lt;/span&gt; &lt;span class=&quot;kt&quot;&gt;void&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;main&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;String&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;[]&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;args&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;kd&quot;&gt;throws&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;Exception&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
+
+        &lt;span class=&quot;c1&quot;&gt;//Setup the inputs and outputs for the PDF rendering&lt;/span&gt;
+    	&lt;span class=&quot;n&quot;&gt;String&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;url&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;new&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;File&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&amp;quot;path/to/html/file.html&amp;quot;&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;).&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;toURI&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;().&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;toURL&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;().&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;toString&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;();&lt;/span&gt;
+        &lt;span class=&quot;n&quot;&gt;OutputStream&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;outputPDF&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;new&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;FileOutputStream&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;pdfFilePath&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;);&lt;/span&gt;
+
+        &lt;span class=&quot;c1&quot;&gt;//Create the renderer and point it to the HTML document&lt;/span&gt;
+        &lt;span class=&quot;n&quot;&gt;ITextRenderer&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;renderer&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;new&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;ITextRenderer&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;();&lt;/span&gt;
+        &lt;span class=&quot;n&quot;&gt;renderer&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;setDocument&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;url&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;);&lt;/span&gt;
+
+        &lt;span class=&quot;c1&quot;&gt;//Render the PDF document&lt;/span&gt;
+        &lt;span class=&quot;n&quot;&gt;renderer&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;layout&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;();&lt;/span&gt;
+        &lt;span class=&quot;n&quot;&gt;renderer&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;createPDF&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;outputPDF&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;);&lt;/span&gt;
+
+        &lt;span class=&quot;c1&quot;&gt;//Close the stream&lt;/span&gt;
+        &lt;span class=&quot;n&quot;&gt;os&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;close&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;();&lt;/span&gt;
+        &lt;span class=&quot;n&quot;&gt;outputPDF&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;close&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;();&lt;/span&gt;
+    &lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;
+&lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;Now this works fine if your HTML is already strictly XHTML. But, since the files I was generating were based on dynamic data, I was using Jade templates and rendering them into HTML. This meant I couldn’t be sure I would get XHTML, so I needed to clean up the HTML before handing it off to Flyingsaucer. Fortuantely, there is an HTML syntax library called &lt;a href=&quot;http://jtidy.sourceforge.net/&quot;&gt;JTidy&lt;/a&gt; which has a Tidy class that can clean up HTML into XHTML. Adding that took a little more code:&lt;/p&gt;
+
+&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;java&quot;&gt;&lt;span class=&quot;c1&quot;&gt;//Import a bunch of relevant Core Java things here (snipped for conciseness)&lt;/span&gt;
+&lt;span class=&quot;kn&quot;&gt;import&lt;/span&gt; &lt;span class=&quot;nn&quot;&gt;org.xhtmlrenderer.pdf.ITextRenderer&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;;&lt;/span&gt;
+&lt;span class=&quot;kn&quot;&gt;import&lt;/span&gt; &lt;span class=&quot;nn&quot;&gt;org.w3c.tidy.Tidy&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;;&lt;/span&gt;
+
+&lt;span class=&quot;kd&quot;&gt;public&lt;/span&gt; &lt;span class=&quot;kd&quot;&gt;class&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;PDFRenderer&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
+    &lt;span class=&quot;kd&quot;&gt;public&lt;/span&gt; &lt;span class=&quot;kd&quot;&gt;static&lt;/span&gt; &lt;span class=&quot;kt&quot;&gt;void&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;main&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;String&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;[]&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;args&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;kd&quot;&gt;throws&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;Exception&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
+
+        &lt;span class=&quot;c1&quot;&gt;//Set up input file and output file for cleaning up the HTML&lt;/span&gt;
+        &lt;span class=&quot;n&quot;&gt;InputStream&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;inputFileStream&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;new&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;FileInputStream&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&amp;quot;path/to/html/file.html&amp;quot;&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;);&lt;/span&gt;
+        &lt;span class=&quot;n&quot;&gt;String&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;cleanHTMLFile&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&amp;quot;temp.html&amp;quot;&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;;&lt;/span&gt;
+        &lt;span class=&quot;n&quot;&gt;OutputStream&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;cleanedFileStream&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;new&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;FileOutputStream&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;cleanHTMLFile&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;);&lt;/span&gt;
+
+        &lt;span class=&quot;c1&quot;&gt;//Clean the HTML&lt;/span&gt;
+    	&lt;span class=&quot;n&quot;&gt;Tidy&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;htmlCleaner&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;new&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;Tidy&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;();&lt;/span&gt;
+    	&lt;span class=&quot;n&quot;&gt;htmlCleaner&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;setXHTML&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;kc&quot;&gt;true&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;);&lt;/span&gt;
+    	&lt;span class=&quot;n&quot;&gt;htmlCleaner&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;parse&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;inputFileStream&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;cleanedFileStream&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;);&lt;/span&gt;
+
+        &lt;span class=&quot;c1&quot;&gt;//Setup the inputs and outputs for the PDF rendering&lt;/span&gt;
+    	&lt;span class=&quot;n&quot;&gt;String&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;url&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;new&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;File&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;cleanHTMLFile&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;).&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;toURI&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;().&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;toURL&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;().&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;toString&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;();&lt;/span&gt;
+        &lt;span class=&quot;n&quot;&gt;OutputStream&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;outputPDF&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;new&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;FileOutputStream&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;pdfFilePath&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;);&lt;/span&gt;
+
+        &lt;span class=&quot;c1&quot;&gt;//Create the renderer and point it to the XHTML document&lt;/span&gt;
+        &lt;span class=&quot;n&quot;&gt;ITextRenderer&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;renderer&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;new&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;ITextRenderer&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;();&lt;/span&gt;
+        &lt;span class=&quot;n&quot;&gt;renderer&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;setDocument&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;url&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;);&lt;/span&gt;
+
+        &lt;span class=&quot;c1&quot;&gt;//Render the PDF document&lt;/span&gt;
+        &lt;span class=&quot;n&quot;&gt;renderer&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;layout&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;();&lt;/span&gt;
+        &lt;span class=&quot;n&quot;&gt;renderer&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;createPDF&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;outputPDF&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;);&lt;/span&gt;
+
+        &lt;span class=&quot;c1&quot;&gt;//Close the streams (and don&amp;#39;t cross them!)&lt;/span&gt;
+        &lt;span class=&quot;n&quot;&gt;cleanedFileStream&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;close&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;();&lt;/span&gt;
+        &lt;span class=&quot;n&quot;&gt;outputPDF&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;close&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;();&lt;/span&gt;
+
+		&lt;span class=&quot;c1&quot;&gt;//Clean up the temp file&lt;/span&gt;
+		&lt;span class=&quot;n&quot;&gt;File&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;tempFile&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;new&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;File&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&amp;quot;temp.html&amp;quot;&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;);&lt;/span&gt;
+		&lt;span class=&quot;n&quot;&gt;tempFile&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;delete&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;();&lt;/span&gt;
+    &lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;
+&lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;This did the trick quite well. The only thing left was too get it into my Node server. After a small bit of tweaking on the Java code to get it to accept command line arguments instead of hard coded paths, all you have to do it use a child process in Node to launch an the executable JAR of the Java program:&lt;/p&gt;
+
+&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;js&quot;&gt;&lt;span class=&quot;kd&quot;&gt;var&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;child_process&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;require&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s1&quot;&gt;&amp;#39;child_process&amp;#39;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;);&lt;/span&gt;
+
+&lt;span class=&quot;c1&quot;&gt;//Again for conciseness, let&amp;#39;s save the tedium of constructing the arguments&lt;/span&gt;
+&lt;span class=&quot;kd&quot;&gt;var&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;renderer&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;child_process&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;spawn&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s1&quot;&gt;&amp;#39;java&amp;#39;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;args&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;);&lt;/span&gt;
+
+&lt;span class=&quot;nx&quot;&gt;renderer&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;on&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s1&quot;&gt;&amp;#39;error&amp;#39;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;kd&quot;&gt;function&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;error&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+    &lt;span class=&quot;nx&quot;&gt;console&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;log&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;error&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;);&lt;/span&gt;
+&lt;span class=&quot;p&quot;&gt;});&lt;/span&gt;
+
+&lt;span class=&quot;nx&quot;&gt;renderer&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;on&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s1&quot;&gt;&amp;#39;exit&amp;#39;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;kd&quot;&gt;function&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;code&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+    &lt;span class=&quot;nx&quot;&gt;console&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;log&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;code&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;);&lt;/span&gt;
+&lt;span class=&quot;p&quot;&gt;});&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;And that did the trick! However, I was unsatisfied with the overhead of dealing with all of the child process handling, so I wrapped it into a module. This ended with the following syntax:&lt;/p&gt;
+
+&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;js&quot;&gt;&lt;span class=&quot;kd&quot;&gt;var&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;htmlToPdf&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;require&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s1&quot;&gt;&amp;#39;html-to-pdf&amp;#39;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;);&lt;/span&gt;
+
+&lt;span class=&quot;nx&quot;&gt;htmlToPdf&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;convertHTMLFile&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s1&quot;&gt;&amp;#39;path/to/source.html&amp;#39;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;s1&quot;&gt;&amp;#39;path/to/destination.pdf&amp;#39;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;kd&quot;&gt;function&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;error&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;success&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+   &lt;span class=&quot;k&quot;&gt;if&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;error&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+        &lt;span class=&quot;nx&quot;&gt;console&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;log&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s1&quot;&gt;&amp;#39;Oh noes! Errorz!&amp;#39;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;);&lt;/span&gt;
+        &lt;span class=&quot;nx&quot;&gt;console&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;log&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;error&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;);&lt;/span&gt;
+    &lt;span class=&quot;p&quot;&gt;}&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;else&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+        &lt;span class=&quot;nx&quot;&gt;console&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;log&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s1&quot;&gt;&amp;#39;Woot! Success!&amp;#39;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;);&lt;/span&gt;
+        &lt;span class=&quot;nx&quot;&gt;console&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;log&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;success&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;);&lt;/span&gt;
+    &lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
+&lt;span class=&quot;p&quot;&gt;});&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;The Flyingsaucer converter puts actual text into the resulting document, so the sizes were similar to sizes obtained from direct drawing, but with the convenience of using HTML templates. However this approach has it’s own set of drawbacks. There was nothing that could be done about the old version of CSS. As a result, looking at your HTML in the browser won’t always give you an accurate representation of how the PDF will look. It also requires you to have Java installed, which usually isn’t a big deal, but it can be relevant. I think the rating for html-to-pdf breaks down like this:&lt;/p&gt;
+
+&lt;ol&gt;
+    &lt;li&gt;&lt;strong&gt;Power&lt;/strong&gt; - 3&lt;/li&gt;
+    &lt;li&gt;&lt;strong&gt;Efficiency&lt;/strong&gt; - 4&lt;/li&gt;
+    &lt;li&gt;&lt;strong&gt;Ease of Use&lt;/strong&gt; - 5&lt;/li&gt;
+    &lt;li&gt;&lt;strong&gt;Flexibility&lt;/strong&gt; - 5&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;p&gt;My own solution comes with a tradeoff as well. With the restriction to CSS2, you lose a bit of power in what you can accomplish, requiring you to jump through hoops at times to get the effect you are looking for. Still, html-to-pdf has a very simple and easy syntax and it renders the document very efficiently space-wise. I think each solution in this series has its own advantages and disadvantages. No one solution will be right for every application. Hopefully, this series will have helped you find whichever solution is right for you!&lt;/p&gt;
+
+&lt;p&gt;Let me know what you think of the solutions and my ratings of them in the comments, and thanks fo reading!&lt;/p&gt;
+
+  &lt;p&gt;&lt;a href=&quot;http://chaosevoker.github.io/programming/2014/08/10/pdf-generation-in-node-part-3.html&quot;&gt;PDF Generation in Node - Part 3&lt;/a&gt; was originally published by Phillip Sipe at &lt;a href=&quot;http://chaosevoker.github.io&quot;&gt;Secret Robot Internet&lt;/a&gt; on August 10, 2014.&lt;/p&gt;</content>
+</entry>
 
 
 <entry>
@@ -115,7 +272,7 @@ developer who figured out how to put words on the internet, then you might try j
     &lt;li&gt;&lt;strong&gt;Flexibility&lt;/strong&gt; - 5&lt;/li&gt;
 &lt;/ol&gt;
 
-&lt;p&gt;You don’t lose too much power with this solution, as you can do a lot with what is possible in modern browsers. You gain a ton in how easy this solution is to implement. It doesn’t get much easier than this, though there are still a couple of gotchas with using Phantom that can provide a few frustrating moments. Howeverm the real loss here is in the size of the document. These PDFs will be relatively enormous, which can make it unuseable for certain applications (like mine).&lt;/p&gt;
+&lt;p&gt;You don’t lose too much power with this solution, as you can do a lot with what is possible in modern browsers. You gain a ton in how easy this solution is to implement. It doesn’t get much easier than this, though there are still a couple of gotchas with using Phantom that can provide a few frustrating moments. However, the real loss here is in the size of the document. These PDFs will be relatively enormous, which can make it unuseable for certain applications (like mine).&lt;/p&gt;
 
 &lt;p&gt;I was not ready to give up on using simple HTML templates, however. Designing and tweaking those templates had felt like heaven compared to tweaking the direct drawing technique. Undaunted, I continued searching for an alternative. I delved into the depths of Google until I found a new path. A third solution…&lt;/p&gt;
 

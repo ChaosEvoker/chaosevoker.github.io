@@ -132,6 +132,162 @@
 <article class="hentry">
   <header>
     <div class="entry-meta">
+      <span class="entry-date date published updated"><time datetime="2014-08-10T00:00:00-05:00"><a href="http://chaosevoker.github.io/programming/2014/08/10/pdf-generation-in-node-part-3.html">August 10, 2014</a></time></span><span class="author vcard"><span class="fn"><a href="http://chaosevoker.github.io/about/" title="About Phillip Sipe">Phillip Sipe</a></span></span>&nbsp; &bull; &nbsp;<span class="entry-comments"><a href="http://chaosevoker.github.io/programming/2014/08/10/pdf-generation-in-node-part-3.html#disqus_thread">Comment</a></span>
+      
+    </div><!-- /.entry-meta -->
+    
+      <h1 class="entry-title"><a href="http://chaosevoker.github.io/programming/2014/08/10/pdf-generation-in-node-part-3.html" rel="bookmark" title="PDF Generation in Node - Part 3" itemprop="url">PDF Generation in Node - Part 3</a></h1>
+    
+  </header>
+  <div class="entry-content">
+    <p>PDF Generation in Node - Part 3: Rendering the PDF with an HTML to PDF Converter</p>
+
+<p>Here are the previous posts on the topic:</p>
+
+<p><a href="http://chaosevoker.github.io/programming/2014/07/16/pdf-generation-in-node-part-1.html">Part 1 - Drawing the PDF Directly</a>.
+<a href="http://chaosevoker.github.io/programming/2014/07/16/pdf-generation-in-node-part-2.html">Part 2 - Using a Headless Browser</a>.</p>
+
+<p>As a reminder, here is how I will ultimately rate the solutions (on a scale of 1 to 5):</p>
+<ol>
+    <li><strong>Power</strong> - The level of control you have over what the resulting PDF looks like</li>
+    <li><strong>Efficiency</strong> - How many resources the strategy consumes</li>
+    <li><strong>Ease of Use</strong> - How easy the solution is to implement</li>
+    <li><strong>Flexibility</strong> - How easy it is to alter the appearance of the PDF (for example due to a marketing redesign)</li>
+</ol>
+
+<p>Everyone ready for some shameless self promotion? Great! Let’s get started…</p>
+
+<h2 id="using-a-html-to-pdf-converter">Using a HTML to PDF Converter</h2>
+
+<p>For the javascript examples in this discussion I’ll be using <a href="https://github.com/ChaosEvoker/html-to-pdf">html-to-pdf</a>. html-to-pdf is a Node module which uses a Java HTML to PDF conversion library called <a href="https://github.com/flyingsaucerproject/flyingsaucer">Flyingsaucer</a> in the background. Full disclosure: I wrote html-to-pdf (the Node module parts anyway - Flyingsaucer was written by other developers).
+There are also a couple of pieces of Java code showing the use of <a href="https://github.com/flyingsaucerproject/flyingsaucer">Flyingsaucer</a> and <a href="http://jtidy.sourceforge.net/">JTidy</a>.</p>
+
+<p>So, I had struggled with the past couple of solutions for generating PDFs in Node. Drawing directly worked fine, but had a huge development and maintenance overhead. Headless browsers were much easier, but generated files that were far too large for my purposes. Eventually, through a great deal of Google patience, I stumbled on Flyingsaucer. Flyingsaucer is a Java library that reads XML and CSS transforms it into a PDF. Flyingsaucer has a few weaknesses though:</p>
+<ul>
+    <li>It is designed as an XML to PDF converter, which means it needs to be fed strict XHTML.</li>
+    <li>The CSS renderer is custom built and somewhat dated, meaning CSS has to conform to CSS2 standards.</li>
+    <li>It's in Java so we have to do some shenanigans to get it working in Node.</li>
+</ul>
+
+<p>These were some hurdles, but I had some sweet Jade templates ready to go and wasn’t going to give up. So here’s a simple Java program using Flyingsaucer:</p>
+
+<div class="highlight"><pre><code class="java"><span class="c1">//Import a bunch of relevant Core Java things here (snipped for conciseness)</span>
+<span class="kn">import</span> <span class="nn">org.xhtmlrenderer.pdf.ITextRenderer</span><span class="o">;</span>
+
+<span class="kd">public</span> <span class="kd">class</span> <span class="nc">PDFRenderer</span> <span class="o">{</span>
+    <span class="kd">public</span> <span class="kd">static</span> <span class="kt">void</span> <span class="nf">main</span><span class="o">(</span><span class="n">String</span><span class="o">[]</span> <span class="n">args</span><span class="o">)</span> <span class="kd">throws</span> <span class="n">Exception</span> <span class="o">{</span>
+
+        <span class="c1">//Setup the inputs and outputs for the PDF rendering</span>
+    	<span class="n">String</span> <span class="n">url</span> <span class="o">=</span> <span class="k">new</span> <span class="n">File</span><span class="o">(</span><span class="s">&quot;path/to/html/file.html&quot;</span><span class="o">).</span><span class="na">toURI</span><span class="o">().</span><span class="na">toURL</span><span class="o">().</span><span class="na">toString</span><span class="o">();</span>
+        <span class="n">OutputStream</span> <span class="n">outputPDF</span> <span class="o">=</span> <span class="k">new</span> <span class="n">FileOutputStream</span><span class="o">(</span><span class="n">pdfFilePath</span><span class="o">);</span>
+
+        <span class="c1">//Create the renderer and point it to the HTML document</span>
+        <span class="n">ITextRenderer</span> <span class="n">renderer</span> <span class="o">=</span> <span class="k">new</span> <span class="n">ITextRenderer</span><span class="o">();</span>
+        <span class="n">renderer</span><span class="o">.</span><span class="na">setDocument</span><span class="o">(</span><span class="n">url</span><span class="o">);</span>
+
+        <span class="c1">//Render the PDF document</span>
+        <span class="n">renderer</span><span class="o">.</span><span class="na">layout</span><span class="o">();</span>
+        <span class="n">renderer</span><span class="o">.</span><span class="na">createPDF</span><span class="o">(</span><span class="n">outputPDF</span><span class="o">);</span>
+
+        <span class="c1">//Close the stream</span>
+        <span class="n">os</span><span class="o">.</span><span class="na">close</span><span class="o">();</span>
+        <span class="n">outputPDF</span><span class="o">.</span><span class="na">close</span><span class="o">();</span>
+    <span class="o">}</span>
+<span class="o">}</span>
+</code></pre></div>
+
+<p>Now this works fine if your HTML is already strictly XHTML. But, since the files I was generating were based on dynamic data, I was using Jade templates and rendering them into HTML. This meant I couldn’t be sure I would get XHTML, so I needed to clean up the HTML before handing it off to Flyingsaucer. Fortuantely, there is an HTML syntax library called <a href="http://jtidy.sourceforge.net/">JTidy</a> which has a Tidy class that can clean up HTML into XHTML. Adding that took a little more code:</p>
+
+<div class="highlight"><pre><code class="java"><span class="c1">//Import a bunch of relevant Core Java things here (snipped for conciseness)</span>
+<span class="kn">import</span> <span class="nn">org.xhtmlrenderer.pdf.ITextRenderer</span><span class="o">;</span>
+<span class="kn">import</span> <span class="nn">org.w3c.tidy.Tidy</span><span class="o">;</span>
+
+<span class="kd">public</span> <span class="kd">class</span> <span class="nc">PDFRenderer</span> <span class="o">{</span>
+    <span class="kd">public</span> <span class="kd">static</span> <span class="kt">void</span> <span class="nf">main</span><span class="o">(</span><span class="n">String</span><span class="o">[]</span> <span class="n">args</span><span class="o">)</span> <span class="kd">throws</span> <span class="n">Exception</span> <span class="o">{</span>
+
+        <span class="c1">//Set up input file and output file for cleaning up the HTML</span>
+        <span class="n">InputStream</span> <span class="n">inputFileStream</span> <span class="o">=</span> <span class="k">new</span> <span class="n">FileInputStream</span><span class="o">(</span><span class="s">&quot;path/to/html/file.html&quot;</span><span class="o">);</span>
+        <span class="n">String</span> <span class="n">cleanHTMLFile</span> <span class="o">=</span> <span class="s">&quot;temp.html&quot;</span><span class="o">;</span>
+        <span class="n">OutputStream</span> <span class="n">cleanedFileStream</span> <span class="o">=</span> <span class="k">new</span> <span class="n">FileOutputStream</span><span class="o">(</span><span class="n">cleanHTMLFile</span><span class="o">);</span>
+
+        <span class="c1">//Clean the HTML</span>
+    	<span class="n">Tidy</span> <span class="n">htmlCleaner</span> <span class="o">=</span> <span class="k">new</span> <span class="n">Tidy</span><span class="o">();</span>
+    	<span class="n">htmlCleaner</span><span class="o">.</span><span class="na">setXHTML</span><span class="o">(</span><span class="kc">true</span><span class="o">);</span>
+    	<span class="n">htmlCleaner</span><span class="o">.</span><span class="na">parse</span><span class="o">(</span><span class="n">inputFileStream</span><span class="o">,</span> <span class="n">cleanedFileStream</span><span class="o">);</span>
+
+        <span class="c1">//Setup the inputs and outputs for the PDF rendering</span>
+    	<span class="n">String</span> <span class="n">url</span> <span class="o">=</span> <span class="k">new</span> <span class="n">File</span><span class="o">(</span><span class="n">cleanHTMLFile</span><span class="o">).</span><span class="na">toURI</span><span class="o">().</span><span class="na">toURL</span><span class="o">().</span><span class="na">toString</span><span class="o">();</span>
+        <span class="n">OutputStream</span> <span class="n">outputPDF</span> <span class="o">=</span> <span class="k">new</span> <span class="n">FileOutputStream</span><span class="o">(</span><span class="n">pdfFilePath</span><span class="o">);</span>
+
+        <span class="c1">//Create the renderer and point it to the XHTML document</span>
+        <span class="n">ITextRenderer</span> <span class="n">renderer</span> <span class="o">=</span> <span class="k">new</span> <span class="n">ITextRenderer</span><span class="o">();</span>
+        <span class="n">renderer</span><span class="o">.</span><span class="na">setDocument</span><span class="o">(</span><span class="n">url</span><span class="o">);</span>
+
+        <span class="c1">//Render the PDF document</span>
+        <span class="n">renderer</span><span class="o">.</span><span class="na">layout</span><span class="o">();</span>
+        <span class="n">renderer</span><span class="o">.</span><span class="na">createPDF</span><span class="o">(</span><span class="n">outputPDF</span><span class="o">);</span>
+
+        <span class="c1">//Close the streams (and don&#39;t cross them!)</span>
+        <span class="n">cleanedFileStream</span><span class="o">.</span><span class="na">close</span><span class="o">();</span>
+        <span class="n">outputPDF</span><span class="o">.</span><span class="na">close</span><span class="o">();</span>
+
+		<span class="c1">//Clean up the temp file</span>
+		<span class="n">File</span> <span class="n">tempFile</span> <span class="o">=</span> <span class="k">new</span> <span class="n">File</span><span class="o">(</span><span class="s">&quot;temp.html&quot;</span><span class="o">);</span>
+		<span class="n">tempFile</span><span class="o">.</span><span class="na">delete</span><span class="o">();</span>
+    <span class="o">}</span>
+<span class="o">}</span>
+</code></pre></div>
+
+<p>This did the trick quite well. The only thing left was too get it into my Node server. After a small bit of tweaking on the Java code to get it to accept command line arguments instead of hard coded paths, all you have to do it use a child process in Node to launch an the executable JAR of the Java program:</p>
+
+<div class="highlight"><pre><code class="js"><span class="kd">var</span> <span class="nx">child_process</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">&#39;child_process&#39;</span><span class="p">);</span>
+
+<span class="c1">//Again for conciseness, let&#39;s save the tedium of constructing the arguments</span>
+<span class="kd">var</span> <span class="nx">renderer</span> <span class="o">=</span> <span class="nx">child_process</span><span class="p">.</span><span class="nx">spawn</span><span class="p">(</span><span class="s1">&#39;java&#39;</span><span class="p">,</span> <span class="nx">args</span><span class="p">);</span>
+
+<span class="nx">renderer</span><span class="p">.</span><span class="nx">on</span><span class="p">(</span><span class="s1">&#39;error&#39;</span><span class="p">,</span> <span class="kd">function</span> <span class="p">(</span><span class="nx">error</span><span class="p">)</span> <span class="p">{</span>
+    <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">error</span><span class="p">);</span>
+<span class="p">});</span>
+
+<span class="nx">renderer</span><span class="p">.</span><span class="nx">on</span><span class="p">(</span><span class="s1">&#39;exit&#39;</span><span class="p">,</span> <span class="kd">function</span> <span class="p">(</span><span class="nx">code</span><span class="p">)</span> <span class="p">{</span>
+    <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">code</span><span class="p">);</span>
+<span class="p">});</span>
+</code></pre></div>
+
+<p>And that did the trick! However, I was unsatisfied with the overhead of dealing with all of the child process handling, so I wrapped it into a module. This ended with the following syntax:</p>
+
+<div class="highlight"><pre><code class="js"><span class="kd">var</span> <span class="nx">htmlToPdf</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">&#39;html-to-pdf&#39;</span><span class="p">);</span>
+
+<span class="nx">htmlToPdf</span><span class="p">.</span><span class="nx">convertHTMLFile</span><span class="p">(</span><span class="s1">&#39;path/to/source.html&#39;</span><span class="p">,</span> <span class="s1">&#39;path/to/destination.pdf&#39;</span><span class="p">,</span> <span class="kd">function</span> <span class="p">(</span><span class="nx">error</span><span class="p">,</span> <span class="nx">success</span><span class="p">)</span> <span class="p">{</span>
+   <span class="k">if</span> <span class="p">(</span><span class="nx">error</span><span class="p">)</span> <span class="p">{</span>
+        <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s1">&#39;Oh noes! Errorz!&#39;</span><span class="p">);</span>
+        <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">error</span><span class="p">);</span>
+    <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+        <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s1">&#39;Woot! Success!&#39;</span><span class="p">);</span>
+        <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">success</span><span class="p">);</span>
+    <span class="p">}</span>
+<span class="p">});</span>
+</code></pre></div>
+
+<p>The Flyingsaucer converter puts actual text into the resulting document, so the sizes were similar to sizes obtained from direct drawing, but with the convenience of using HTML templates. However this approach has it’s own set of drawbacks. There was nothing that could be done about the old version of CSS. As a result, looking at your HTML in the browser won’t always give you an accurate representation of how the PDF will look. It also requires you to have Java installed, which usually isn’t a big deal, but it can be relevant. I think the rating for html-to-pdf breaks down like this:</p>
+
+<ol>
+    <li><strong>Power</strong> - 3</li>
+    <li><strong>Efficiency</strong> - 4</li>
+    <li><strong>Ease of Use</strong> - 5</li>
+    <li><strong>Flexibility</strong> - 5</li>
+</ol>
+
+<p>My own solution comes with a tradeoff as well. With the restriction to CSS2, you lose a bit of power in what you can accomplish, requiring you to jump through hoops at times to get the effect you are looking for. Still, html-to-pdf has a very simple and easy syntax and it renders the document very efficiently space-wise. I think each solution in this series has its own advantages and disadvantages. No one solution will be right for every application. Hopefully, this series will have helped you find whichever solution is right for you!</p>
+
+<p>Let me know what you think of the solutions and my ratings of them in the comments, and thanks fo reading!</p>
+
+  </div><!-- /.entry-content -->
+</article><!-- /.hentry -->
+
+<article class="hentry">
+  <header>
+    <div class="entry-meta">
       <span class="entry-date date published updated"><time datetime="2014-07-16T10:10:49-05:00"><a href="http://chaosevoker.github.io/update/2014/07/16/ramblings-of-a-chaotic-madman.html">July 16, 2014</a></time></span><span class="author vcard"><span class="fn"><a href="http://chaosevoker.github.io/about/" title="About Phillip Sipe">Phillip Sipe</a></span></span>
       
     </div><!-- /.entry-meta -->
@@ -230,7 +386,7 @@ developer who figured out how to put words on the internet, then you might try j
     <li><strong>Flexibility</strong> - 5</li>
 </ol>
 
-<p>You don’t lose too much power with this solution, as you can do a lot with what is possible in modern browsers. You gain a ton in how easy this solution is to implement. It doesn’t get much easier than this, though there are still a couple of gotchas with using Phantom that can provide a few frustrating moments. Howeverm the real loss here is in the size of the document. These PDFs will be relatively enormous, which can make it unuseable for certain applications (like mine).</p>
+<p>You don’t lose too much power with this solution, as you can do a lot with what is possible in modern browsers. You gain a ton in how easy this solution is to implement. It doesn’t get much easier than this, though there are still a couple of gotchas with using Phantom that can provide a few frustrating moments. However, the real loss here is in the size of the document. These PDFs will be relatively enormous, which can make it unuseable for certain applications (like mine).</p>
 
 <p>I was not ready to give up on using simple HTML templates, however. Designing and tweaking those templates had felt like heaven compared to tweaking the direct drawing technique. Undaunted, I continued searching for an alternative. I delved into the depths of Google until I found a new path. A third solution…</p>
 
